@@ -1,0 +1,44 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
+
+# Sample movie dataset
+data = {
+    "Movie": ["Inception", "Interstellar", "The Dark Knight", 
+              "Memento", "The Prestige"],
+    "Description": [
+        "dreams mind-bending science-fiction thriller",
+        "space travel black holes emotional sci-fi drama",
+        "vigilante hero action crime thriller",
+        "memory loss psychological thriller mystery",
+        "magicians rivalry mystery psychological thriller"
+    ]
+}
+
+df = pd.DataFrame(data)
+
+# TF-IDF Vectorization
+tfidf = TfidfVectorizer()
+tfidf_matrix = tfidf.fit_transform(df["Description"])
+
+# Cosine similarity
+similarity_matrix = cosine_similarity(tfidf_matrix)
+
+# Pick a target movie (example: Memento -> index 3)
+target_index = 3
+scores = similarity_matrix[target_index]
+
+# Plot similarity scores
+plt.figure(figsize=(8, 5))
+plt.bar(df["Movie"], scores)
+plt.title("Similarity Scores with 'Memento'")
+plt.xlabel("Movies")
+plt.ylabel("Similarity Score")
+plt.xticks(rotation=45)
+plt.show()
+
+# Printed recommendations
+print("Recommended movies for:", df["Movie"][target_index])
+recommendations = df.iloc[scores.argsort()[::-1][1:]]  # Skip the movie itself
+print(recommendations)
