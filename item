@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
+
+# Sample user-item rating matrix
+data = {
+    "User": ["U1", "U2", "U3", "U4", "U5"],
+    "Item1": [5, 4, 0, 2, 0],
+    "Item2": [3, 0, 4, 0, 2],
+    "Item3": [4, 0, 0, 3, 0],
+    "Item4": [0, 2, 5, 0, 4]
+}
+
+# Create DataFrame
+df = pd.DataFrame(data).set_index("User")
+
+# Compute item-item similarity
+item_item_similarity = pd.DataFrame(
+    cosine_similarity(df.T),
+    index=df.columns,
+    columns=df.columns
+)
+
+# Choose target item
+target_item = "Item1"
+scores = item_item_similarity[target_item]
+
+# Plot similarity scores
+plt.figure(figsize=(8, 5))
+plt.bar(item_item_similarity.columns, scores)
+plt.title(f"Item-Based Collaborative Filtering Similarity for '{target_item}'")
+plt.xticks(rotation=45)
+plt.ylabel("Similarity Score")
+plt.show()
+
+# Print similarity matrix
+print("Similarity matrix:\n", item_item_similarity)
+
+# Recommendations (sorted descending, skip the item itself)
+print("\nRecommendations for:", target_item)
+print(scores.sort_values(ascending=False)[1:])
