@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+from sklearn.decomposition import TruncatedSVD
+import matplotlib.pyplot as plt
+
+# User–item rating matrix
+data = {
+    "User": ["U1", "U2", "U3", "U4", "U5"],
+    "Item1": [5, 4, 0, 2, 3],
+    "Item2": [3, 0, 4, 0, 2],
+    "Item3": [4, 0, 0, 3, 0],
+    "Item4": [0, 2, 5, 0, 4]
+}
+
+df = pd.DataFrame(data).set_index("User")
+
+# Apply Truncated SVD
+svd = TruncatedSVD(n_components=2)
+latent_user = svd.fit_transform(df)
+latent_item = svd.components_
+
+# Predicted rating matrix
+pred = np.dot(latent_user, latent_item)
+pred_df = pd.DataFrame(pred, index=df.index, columns=df.columns)
+
+# Select target item
+target_item = "Item3"
+u_values = pred_df[target_item]
+
+# Plot predicted user ratings for the item
+plt.figure(figsize=(8, 5))
+plt.bar(u_values.index, u_values.values)
+plt.title(f"Predicted User Ratings for {target_item}")
+plt.xlabel("Users")
+plt.ylabel("Predicted Rating")
+plt.xticks(rotation=45)
+plt.show()
+
+# Show prediction matrix and sorted recommendations
+print("Predicted Ratings Matrix:\n", pred_df)
+print("\nTop User Predictions for", target_item, ":\n")
+print(u_values.sort_values(ascending=False))
